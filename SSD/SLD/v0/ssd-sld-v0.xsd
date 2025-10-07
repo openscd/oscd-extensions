@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:esldoscd="https://openscd.org/SCL/SSD/SLD/v0" targetNamespace="https://openscd.org/SCL/SSD/SLD/v0" elementFormDefault="qualified" attributeFormDefault="qualified" version="0.0.1">
+
+    <xs:annotation>
+        <xs:documentation>
+            Schema for OpenSCD Single Line Diagram (SLD) extension to IEC 61850 SCL.
+            This namespace defines elements to be used within SCL Private sections for 
+            positioning and rendering process elements and functions in a single line 
+            diagram representation of substations.
+        </xs:documentation>
+    </xs:annotation>
+
+    <!-- Simple Types -->
+
+    <xs:simpleType name="tDecimal">
+        <xs:annotation>
+            <xs:documentation>Decimal number type for coordinates and dimensions</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:decimal"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="tRotation">
+        <xs:annotation>
+            <xs:documentation>Rotation value: 0, 1, 2, or 3 (representing 0°, 90°, 180°, 270°)</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="3"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="tTransformerKind">
+        <xs:annotation>
+            <xs:documentation>Type of transformer representation</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="default"/>
+            <xs:enumeration value="auto"/>
+            <xs:enumeration value="earthing"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="tColor">
+        <xs:annotation>
+            <xs:documentation>Color value in hexadecimal format (e.g., #000000)</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="tFontWeight">
+        <xs:annotation>
+            <xs:documentation>Font weight for text rendering (100-900)</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="100"/>
+            <xs:maxInclusive value="900"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Complex Types for Private Elements -->
+
+    <xs:complexType name="tSLDAttributes">
+        <xs:annotation>
+            <xs:documentation>
+                SLD coordinate and dimension data to be stored in Private elements.
+                Used with Private/@type="OpenSCD-SLD-Layout" or similar.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="x" type="esldoscd:tDecimal" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>X-coordinate position in grid units</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="y" type="esldoscd:tDecimal" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>Y-coordinate position in grid units</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="w" type="esldoscd:tDecimal" use="optional" default="1">
+            <xs:annotation>
+                <xs:documentation>Width in grid units</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="h" type="esldoscd:tDecimal" use="optional" default="1">
+            <xs:annotation>
+                <xs:documentation>Height in grid units</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="lx" type="esldoscd:tDecimal" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>Label X-coordinate offset in grid units</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="ly" type="esldoscd:tDecimal" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>Label Y-coordinate offset in grid units</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="rot" type="esldoscd:tRotation" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>Rotation: 0=0°, 1=90°, 2=180°, 3=270°</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="flip" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>Whether the element is flipped/mirrored</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="color" type="esldoscd:tColor" use="optional" default="#000">
+            <xs:annotation>
+                <xs:documentation>Color for rendering the element</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="weight" type="esldoscd:tFontWeight" use="optional" default="300">
+            <xs:annotation>
+                <xs:documentation>Font weight for text rendering (100-900)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="kind" type="esldoscd:tTransformerKind" use="optional" default="default">
+            <xs:annotation>
+                <xs:documentation>Type of transformer for specialized rendering</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uuid" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>Unique identifier for the element</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="bus" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>Indicates if this is a busbar (thicker line rendering)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Elements for use in Private sections -->
+
+    <xs:element name="SLDAttributes" type="esldoscd:tSLDAttributes">
+        <xs:annotation>
+            <xs:documentation>
+                Root element containing SLD positioning and styling data.
+                To be used within SCL Private elements.
+                
+                Example usage:
+                &lt;Private type="OpenSCD-SLD-Layout"&gt;
+                    &lt;esldoscd:SLDAttributes esldoscd:x="10" esldoscd:y="5" esldoscd:w="2" esldoscd:h="3" esldoscd:rot="1" esldoscd:color="#FF0000"/&gt;
+                &lt;/Private&gt;
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="Section">
+        <xs:annotation>
+            <xs:documentation>
+                Defines a section of a connectivity node with vertices.
+                Can be marked as a busbar for different rendering.
+                
+                Example usage:
+                &lt;Private type="OpenSCD-SLD-Layout"&gt;
+                    &lt;esldoscd:Section esldoscd:bus="true"&gt;
+                        &lt;esldoscd:Vertex esldoscd:x="10.5" esldoscd:y="20.3"/&gt;
+                        &lt;esldoscd:Vertex esldoscd:x="15.5" esldoscd:y="25.3"/&gt;
+                    &lt;/esldoscd:Section&gt;
+                &lt;/Private&gt;
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Vertex" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="x" type="esldoscd:tDecimal" use="required"/>
+                        <xs:attribute name="y" type="esldoscd:tDecimal" use="required"/>
+                        <xs:attribute name="uuid" type="xs:string" use="optional">
+                            <xs:annotation>
+                                <xs:documentation>Unique identifier referencing the a Terminal</xs:documentation>
+                            </xs:annotation>
+                        </xs:attribute>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="bus" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>Indicates if this section is a busbar (renders with thicker lines)</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
