@@ -380,4 +380,44 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="Reference">
+        <xs:annotation>
+            <xs:documentation> Generic reference element for linking SLD layout information to an 
+                SCL element via identity string. 
+                
+                Current usage supports IED references.
+            
+                Example usage:
+                &lt;Private type="OpenSCD-SLD-Layout"&gt;
+                    &lt;esldoscd:Reference
+                        esldoscd:id='IED[name="P2"]'
+                        esldoscd:type="IED"&gt;
+                        &lt;esldoscd:SLDAttributes
+                            esldoscd:x="7"
+                            esldoscd:y="4"
+                            esldoscd:lx="8"
+                            esldoscd:ly="5"/&gt;
+                    &lt;/esldoscd:Reference&gt;
+                &lt;/Private&gt;
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="esldoscd:SLDAttributes" minOccurs="0" maxOccurs="1" />
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="required">
+                <xs:annotation>
+                    <xs:documentation>Identity string of the referenced SCL element. </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="type" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="IED" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
 </xs:schema>
