@@ -250,8 +250,14 @@
     <xs:complexType name="tSLDAttributes">
         <xs:annotation>
             <xs:documentation>
-                SLD coordinate and dimension data to be stored in Private elements.
-                Intended to be used as a child of Private/@type="OpenSCD-SLD-Layout".
+                SLD coordinate and dimension data for the containing SCL element.
+                Intended to be used as a child of Private/@type="OpenSCD-SLD-Layout"
+                on that element.
+
+                To describe the layout of a direct Text child, use TextLayout
+                in the same Private instead. In particular, do not place a Private
+                inside Text: the SCL Text element does not permit an SCL-namespace
+                Private child.
             </xs:documentation>
         </xs:annotation>
         <xs:attribute name="x" type="xs:decimal" use="optional">
@@ -327,6 +333,38 @@
         </xs:attribute>
     </xs:complexType>
 
+    <xs:complexType name="tTextLayout">
+        <xs:annotation>
+            <xs:documentation>
+                SLD position, orientation and formatting data for the single direct
+                Text child of the containing SCL element. Text itself carries only
+                its wording; this entry carries where and how that wording is drawn.
+
+                Intended to be used as a child of Private/@type="OpenSCD-SLD-Layout"
+                on the Text parent, alongside but distinct from the parent's own
+                SLDAttributes.
+
+                Reuses the lx, ly, rot, color and weight attributes defined by
+                tSLDAttributes. x, y, flip, kind and uuid are prohibited because
+                they have no meaning for a Text child. w and h are also prohibited:
+                they are not used for Text today. They could one day describe text
+                wrapping, but wrapping is not implemented and brings its own
+                complications, so they are deliberately left out for now.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:restriction base="esldoscd:tSLDAttributes">
+                <xs:attribute name="x" use="prohibited"/>
+                <xs:attribute name="y" use="prohibited"/>
+                <xs:attribute name="w" use="prohibited"/>
+                <xs:attribute name="h" use="prohibited"/>
+                <xs:attribute name="flip" use="prohibited"/>
+                <xs:attribute name="kind" use="prohibited"/>
+                <xs:attribute name="uuid" use="prohibited"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
     <!-- Elements for use in Private sections -->
 
     <xs:element name="SLDAttributes" type="esldoscd:tSLDAttributes">
@@ -339,6 +377,38 @@
                 &lt;Private type="OpenSCD-SLD-Layout"&gt;
                     &lt;esldoscd:SLDAttributes esldoscd:x="10" esldoscd:y="5" esldoscd:w="2" esldoscd:h="3" esldoscd:rot="1" esldoscd:color="#FF0000"/&gt;
                 &lt;/Private&gt;
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="TextLayout" type="esldoscd:tTextLayout">
+        <xs:annotation>
+            <xs:documentation>
+                Layout of the containing element's single direct SCL Text child.
+
+                The SCL parent types that permit Text permit at most one direct
+                Text child, so this entry is unambiguously associated with that
+                child and needs no identifier. It occurs in the parent's
+                Private/@type="OpenSCD-SLD-Layout" and must not be confused with
+                the parent's own SLDAttributes, which may coexist in the same
+                Private.
+
+                It must occur at most once per Private. It must not be placed in
+                Text: Text permits character data and foreign-namespace elements,
+                but not an SCL-namespace Private child.
+
+                Legacy layout stored in Text/Private/@type="OpenSCD-SLD-Layout"
+                should be migrated into the parent's Private and represented by
+                this element.
+
+                Example usage:
+                &lt;Bay name="B1"&gt;
+                    &lt;Text&gt;Operator note&lt;/Text&gt;
+                    &lt;Private type="OpenSCD-SLD-Layout"&gt;
+                        &lt;esldoscd:SLDAttributes esldoscd:x="1" esldoscd:y="2"/&gt;
+                        &lt;esldoscd:TextLayout esldoscd:lx="3" esldoscd:ly="4" esldoscd:color="#000000"/&gt;
+                    &lt;/Private&gt;
+                &lt;/Bay&gt;
             </xs:documentation>
         </xs:annotation>
     </xs:element>
